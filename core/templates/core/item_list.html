@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Found Items</h2>
+
+<form method="get" style="margin-bottom: 20px;">
+    <input type="text" name="category" placeholder="Search by category" value="{{ request.GET.category }}">
+    <input type="text" name="location" placeholder="Search by location" value="{{ request.GET.location }}">
+    <button type="submit">Search</button>
+</form>
+
+{% if items %}
+    <ul>
+        {% for item in items %}
+            <li style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
+                <strong>{{ item.title }}</strong> ({{ item.category }})<br>
+                <em>Reported by: {{ item.user.full_name }}</em><br>
+                <p>{{ item.description }}</p>
+                <p><strong>Location:</strong> {{ item.location_text }}</p>
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="Image of item" width="200">
+                {% endif %}
+                <p><strong>Reported At:</strong> {{ item.reported_at|date:"Y-m-d H:i" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No found items match the given criteria.</p>
+{% endif %}
+{% endblock %}

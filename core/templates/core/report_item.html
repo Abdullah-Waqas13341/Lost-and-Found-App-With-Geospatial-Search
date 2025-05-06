@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Report {{ item_type }} Item</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <!-- Hidden fields for backend -->
+    <input type="hidden" id="id_latitude" name="latitude">
+    <input type="hidden" id="id_longitude" name="longitude">
+    <input type="hidden" id="id_radius" name="radius">
+
+    <!-- Leaflet Map Container -->
+    <div id="map" style="height: 600px; width: 100%; margin: 20px 0; border: 2px solid #ccc;"></div>
+
+    <!-- Live coordinate display -->
+    <div id="coordinate-info" style="margin-bottom: 15px; font-weight: bold;"></div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet and Leaflet Draw CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet and Leaflet Draw JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const map = L.map('map').setView([33.6425, 72.9886], 17);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let marker = null;
+        let circle = null;
+
+        const drawControl = new L.Control.Draw({
+            draw: {
+                polyline: false,
+                polygon: false,
+                rectangle: false,
+                marker: true,
+                circle: true,
+                circlemarker: false
+            },
+            edit: false
+        });
+        map.addControl(drawControl);
+
+        // Draw created
+        map.on(L.Draw.Event.CREATED, function (e) {
+            const type = e.layerType;
+            const layer = e.layer;
+
+            if (type === 'marker') {
+                if (marker) map.removeLayer(marker);
+                marker = layer;
+                const latlng = marker.getLatLng();
+                document.getElementById('id_latitude').value = latlng.lat.toFixed(6);
+                document.getElementById('id_longitude').value = latlng.lng.toFixed(6);
+                updateCoordInfo();
+                map.addLayer(marker);
+            }
+
+            if (type === 'circle') {
+                if (circle) map.removeLayer(circle);
+                circle = layer;
+                const radius = layer.getRadius();
+                document.getElementById('id_radius').value = Math.round(radius);
+                updateCoordInfo();
+                map.addLayer(circle);
+            }
+        });
+
+        // Double-click to remove circle
+        map.on('dblclick', function () {
+            if (circle) {
+                map.removeLayer(circle);
+                circle = null;
+                document.getElementById('id_radius').value = '';
+                updateCoordInfo();
+                alert('Circle removed. You can now draw a new one.');
+            }
+        });
+
+        function updateCoordInfo() {
+            const lat = document.getElementById('id_latitude').value;
+            const lng = document.getElementById('id_longitude').value;
+            const radius = document.getElementById('id_radius').value;
+
+            let text = '';
+            if (lat && lng) text += `📍 Coordinates: (${lat}, ${lng})`;
+            if (radius) text += ` | 🔵 Radius: ${radius} meters`;
+
+            document.getElementById('coordinate-info').innerText = text;
+        }
+    });
+</script>
+{% endblock %}

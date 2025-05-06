@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NUST Lost & Found{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'choose_lost_or_found' %}">Home</a></li>
+                <li><a href="{% url 'report_lost_item' %}">Report Lost Item</a></li>
+                <li><a href="{% url 'report_found_item' %}">Report Found Item</a></li>
+                <a href="{% url 'item_list' %}">View Found Items</a> |
+                 <a href="{% url 'report_lost_item' %}">Report Lost Item</a> |
+                <a href="{% url 'report_found_item' %}">Report Found Item</a>
+                
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        
+        {% block content %}{% endblock %}
+        {% block extra_js %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 NUST Lost & Found</p>
+    </footer>
+</body>
+</html>

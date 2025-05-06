@@ -1,0 +1,168 @@
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Header */
+header {
+    background-color: #2a9d8f;
+    padding: 10px 0;
+    width: 100%;
+}
+
+header nav ul {
+    list-style: none;
+    text-align: center;
+}
+
+header nav ul li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+header nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    background-color: #2a9d8f;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Main Content */
+main {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+h1, h2 {
+    text-align: center;
+    color: #2a9d8f;
+    margin-bottom: 20px;
+}
+
+/* Forms: General Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 300px;
+    margin-top: 20px;
+}
+
+form p {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Input & Select Fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea,
+select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form label {
+    width: 100%;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* Buttons */
+button,
+input[type="submit"] {
+    padding: 12px 18px;
+    margin: 10px 0;
+    font-size: 16px;
+    background-color: #2a9d8f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #21867c;
+}
+
+/* Specialized Report Form Styling (Optional) */
+.report-form {
+    width: 300px;
+    margin-top: 20px;
+}
+
+.report-form label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.report-form input,
+.report-form textarea,
+.report-form select {
+    margin-bottom: 10px;
+}
+
+/* Messages (like login success/error) */
+.message {
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    width: 100%;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+#map {
+    height: 400px !important;
+}
+

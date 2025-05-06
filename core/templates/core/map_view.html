@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link 
+        rel="stylesheet" 
+        href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""
+    />
+
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Lost and Found Item Locations</h2>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script 
+        src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-d9/qA1SgNfya5i9td5j7eO6xqvHciX0nN2gUI3E1f7OBkWPt6Dq+Ce3zn16vvW9KvthguX/Wr23Nyo6oJP7zow=="
+        crossorigin="">
+    </script>
+
+    <script>
+        // Initialize map centered on NUST H-12 Islamabad (approx coords)
+        var map = L.map('map').setView([33.6416, 72.9830], 15);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Example marker (you can later dynamically loop over your DB items and add them)
+        var marker = L.marker([33.6416, 72.9830]).addTo(map);
+        marker.bindPopup("<b>Sample Lost Item</b><br>Found near SEECS.").openPopup();
+    </script>
+</body>
+</html>

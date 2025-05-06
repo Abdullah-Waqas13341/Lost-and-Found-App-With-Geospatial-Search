@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Did you lose or find an item?</h2>
+<form method="POST">
+    {% csrf_token %}
+    <button name="choice" value="lost">I Lost an Item</button>
+    <button name="choice" value="found">I Found an Item</button>
+</form>
+{% endblock %}
