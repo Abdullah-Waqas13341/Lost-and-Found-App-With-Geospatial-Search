@@ -162,7 +162,52 @@ input[type="submit"]:hover {
     background-color: #f8d7da;
     color: #721c24;
 }
+#map-container {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        margin-bottom: 30px;
+        border: 2px solid #ddd;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
 #map {
-    height: 400px !important;
+    width: 100%;
+    height: 600px; /* Increase the height */
+    margin: 20px 0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+}
+#coordinate-info {
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
 }
 
+/* Responsive Form */
+form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}

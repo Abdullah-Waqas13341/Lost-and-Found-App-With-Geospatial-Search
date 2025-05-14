@@ -1,29 +1,156 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <h2>Found Items</h2>
 
 <form method="get" style="margin-bottom: 20px;">
-    <input type="text" name="category" placeholder="Search by category" value="{{ request.GET.category }}">
-    <input type="text" name="location" placeholder="Search by location" value="{{ request.GET.location }}">
+    <!-- Category Dropdown -->
+    <label for="category">Category:</label>
+    <select name="category" id="category">
+        <option value="">All Categories</option>
+        {% for value, label in form.category.field.choices %}
+            <option value="{{ value }}" {% if request.GET.category == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Location Dropdown -->
+    <label for="location">Location:</label>
+    <select name="location" id="location">
+        <option value="">All Locations</option>
+        {% for value, label in form.location_text.field.choices %}
+            <option value="{{ value }}" {% if request.GET.location == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+        <option value="other" {% if request.GET.location == "other" %}selected{% endif %}>Other (Use Map)</option>
+    </select>
+
+    <!-- Hidden fields for map search -->
+    <input type="hidden" id="id_latitude" name="latitude" value="{{ request.GET.latitude }}">
+    <input type="hidden" id="id_longitude" name="longitude" value="{{ request.GET.longitude }}">
+    <input type="hidden" id="id_radius" name="radius" value="{{ request.GET.radius }}">
+
     <button type="submit">Search</button>
 </form>
 
-{% if items %}
-    <ul>
-        {% for item in items %}
-            <li style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
-                <strong>{{ item.title }}</strong> ({{ item.category }})<br>
-                <em>Reported by: {{ item.user.full_name }}</em><br>
-                <p>{{ item.description }}</p>
-                <p><strong>Location:</strong> {{ item.location_text }}</p>
-                {% if item.image %}
-                    <img src="{{ item.image.url }}" alt="Image of item" width="200">
-                {% endif %}
-                <p><strong>Reported At:</strong> {{ item.reported_at|date:"Y-m-d H:i" }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No found items match the given criteria.</p>
+<div id="map" style="width: 100%; height: 400px; margin-bottom: 30px;"></div>
+<div id="coordinate-info" style="margin-bottom: 15px; font-weight: bold;"></div>
+
+{% if search_performed %}
+    {% if items_qs %}
+        <ul>
+            {% for item in items_qs %}
+                <li style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
+                    <strong>{{ item.title }}</strong> ({{ item.category }})<br>
+                    <em>Reported by: {{ item.user.full_name }}</em><br>
+                    <p>{{ item.description }}</p>
+                    <p><strong>Location:</strong> {{ item.location_text }}</p>
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="Image of item" width="200">
+                    {% endif %}
+                    <p><strong>Reported At:</strong> {{ item.reported_at|date:"Y-m-d H:i" }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No found items match the given criteria.</p>
+    {% endif %}
 {% endif %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+
+{{ items|json_script:"items-data" }}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = L.map('map').setView([33.6416, 72.9830], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        let marker = null;
+        let circle = null;
+
+        // Draw controls
+        const drawControl = new L.Control.Draw({
+            draw: {
+                polyline: false,
+                polygon: false,
+                rectangle: false,
+                marker: true,
+                circle: true,
+                circlemarker: false
+            },
+            edit: false
+        });
+        map.addControl(drawControl);
+
+        // Draw created
+        map.on(L.Draw.Event.CREATED, function (e) {
+            const type = e.layerType;
+            const layer = e.layer;
+
+            if (type === 'marker') {
+                if (marker) map.removeLayer(marker);
+                marker = layer;
+                const latlng = marker.getLatLng();
+                document.getElementById('id_latitude').value = latlng.lat.toFixed(6);
+                document.getElementById('id_longitude').value = latlng.lng.toFixed(6);
+                updateCoordInfo();
+                map.addLayer(marker);
+            }
+
+            if (type === 'circle') {
+                if (circle) map.removeLayer(circle);
+                circle = layer;
+                const radius = layer.getRadius();
+                document.getElementById('id_radius').value = Math.round(radius);
+                updateCoordInfo();
+                map.addLayer(circle);
+            }
+        });
+
+        // Double-click to remove circle and marker
+        map.on('dblclick', function () {
+            if (circle) {
+                map.removeLayer(circle);
+                circle = null;
+                document.getElementById('id_radius').value = '';
+            }
+            if (marker) {
+                map.removeLayer(marker);
+                marker = null;
+                document.getElementById('id_latitude').value = '';
+                document.getElementById('id_longitude').value = '';
+            }
+            updateCoordInfo();
+        });
+
+        function updateCoordInfo() {
+            const lat = document.getElementById('id_latitude').value;
+            const lng = document.getElementById('id_longitude').value;
+            const radius = document.getElementById('id_radius').value;
+
+            let text = '';
+            if (lat && lng) text += `📍 Coordinates: (${lat}, ${lng})`;
+            if (radius) text += ` | 🔵 Radius: ${radius} meters`;
+
+            document.getElementById('coordinate-info').innerText = text;
+        }
+
+        // Show all found items as markers
+        var items = JSON.parse(document.getElementById('items-data').textContent);
+        items.forEach(function(item) {
+            if (item.location) {
+                var geo = JSON.parse(item.location);
+                var lng = geo.coordinates[0];
+                var lat = geo.coordinates[1];
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup("<b>" + item.title + "</b><br>" + item.location_text);
+            }
+        });
+    });
+</script>
 {% endblock %}

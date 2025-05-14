@@ -14,7 +14,7 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(LostItem)
 class LostItemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'status', 'category', 'user', 'reported_at')
+    list_display = ('title', 'status', 'category', 'user', 'reported_at','location_text','location','radius','image')    
     list_filter = ('status', 'category', 'reported_at')
     search_fields = ('title', 'description', 'location_text')
     autocomplete_fields = ['user']

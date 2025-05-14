@@ -15,5 +15,12 @@
         {{ form.as_p }}
         <button type="submit">Register</button>
     </form>
+
+    <br>
+    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
 </body>
 </html>

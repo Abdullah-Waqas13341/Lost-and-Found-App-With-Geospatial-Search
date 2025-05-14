@@ -11,9 +11,16 @@
     <input type="hidden" id="id_latitude" name="latitude">
     <input type="hidden" id="id_longitude" name="longitude">
     <input type="hidden" id="id_radius" name="radius">
+    <!-- Category Dropdown -->
 
+  
+  <!-- JavaScript for toggling "Other" fields -->
+ 
     <!-- Leaflet Map Container -->
     <div id="map" style="height: 600px; width: 100%; margin: 20px 0; border: 2px solid #ccc;"></div>
+
+
+    
 
     <!-- Live coordinate display -->
     <div id="coordinate-info" style="margin-bottom: 15px; font-weight: bold;"></div>
@@ -33,7 +40,20 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
 
-<script>
+ <script>
+    function toggleOtherFields() {
+      const catSelect = document.querySelector('[name="category"]');
+      const locSelect = document.querySelector('[name="location_text"]');
+      const catField = document.getElementById('custom-category-field');
+      const locField = document.getElementById('custom-location-field');
+  
+      catField.style.display = catSelect.value === 'other' ? 'block' : 'none';
+      locField.style.display = locSelect.value === 'other' ? 'block' : 'none';
+    }
+  
+    document.addEventListener('DOMContentLoaded', toggleOtherFields);
+    document.querySelector('[name="category"]').addEventListener('change', toggleOtherFields);
+    document.querySelector('[name="location_text"]').addEventListener('change', toggleOtherFields);
     document.addEventListener('DOMContentLoaded', function () {
         const map = L.map('map').setView([33.6425, 72.9886], 17);
 
@@ -90,6 +110,13 @@
                 document.getElementById('id_radius').value = '';
                 updateCoordInfo();
                 alert('Circle removed. You can now draw a new one.');
+            }
+            if(marker) {
+                map.removeLayer(marker);
+                marker = null;
+                document.getElementById('id_latitude').value = '';
+                document.getElementById('id_longitude').value = '';
+                updateCoordInfo();
             }
         });
 
