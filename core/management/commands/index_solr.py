@@ -1,4 +1,3 @@
-
 import requests
 from django.core.management.base import BaseCommand
 from core.models import LostItem
@@ -32,11 +31,9 @@ class Command(BaseCommand):
         skipped_count = 0
 
         for item in items:
-            # Use lowercased location text for matching to avoid case sensitivity issues
             location_text = item.location_text.lower()
             core_found = False
 
-            # Check each server/core mapping
             for core, locations in LOCATION_CORE_MAP.items():
                 if any(location in location_text for location in locations):
                     solr_url = f'http://localhost:8983/solr/{core}/update/json/docs?commit=true'
@@ -48,25 +45,34 @@ class Command(BaseCommand):
                         'location': item.location_text,
                         'status': item.status,
                         'reported_at': item.reported_at.isoformat(),
+                        'radius': float(item.radius) if item.radius is not None else 0.0,  # Store radius as float
                     }
-                    # Send the data to Solr for indexing
                     try:
                         response = requests.post(solr_url, json=[doc])
                         if response.status_code == 200:
                             indexed_count += 1
                         else:
                             skipped_count += 1
-                            self.stdout.write(self.style.WARNING(f"Failed to index item '{item.title}' to Solr at {solr_url}"))
+                            self.stdout.write(self.style.WARNING(
+                                f"Failed to index item '{item.title}' to Solr at {solr_url} (status {response.status_code})"
+                            ))
                     except Exception as e:
                         skipped_count += 1
-                        self.stdout.write(self.style.WARNING(f"Error indexing item '{item.title}': {str(e)}"))
+                        self.stdout.write(self.style.WARNING(
+                            f"Error indexing item '{item.title}': {str(e)}"
+                        ))
                     core_found = True
-                    break  # Stop checking other cores once a match is found
+                    break
 
             if not core_found:
                 skipped_count += 1
-                self.stdout.write(self.style.WARNING(f"Skipping: {item.title} - Unknown location '{item.location_text}'"))
+                self.stdout.write(self.style.WARNING(
+                    f"Skipping: {item.title} - Unknown location '{item.location_text}'"
+                ))
 
-        # Provide a summary of the results
-        self.stdout.write(self.style.SUCCESS(f"Successfully indexed {indexed_count} items to Solr."))
-        self.stdout.write(self.style.SUCCESS(f"Skipped {skipped_count} items due to location mismatches or errors."))
+        self.stdout.write(self.style.SUCCESS(
+            f"Successfully indexed {indexed_count} items to Solr."
+        ))
+        self.stdout.write(self.style.SUCCESS(
+            f"Skipped {skipped_count} items due to location mismatches or errors."
+        ))
